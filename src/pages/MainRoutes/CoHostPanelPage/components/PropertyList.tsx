@@ -197,7 +197,7 @@ function PropertyList() {
       <div className="p-4 text-red-600">
         <p>{error}</p>
         <button
-          onClick={() => fetchPropertiesData()}
+
           className="mt-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition"
         >
           Retry

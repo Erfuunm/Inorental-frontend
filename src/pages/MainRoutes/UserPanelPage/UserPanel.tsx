@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import  { useState } from "react";
 import Sidebar from "../../../components/UserPanel/Sidebar";
-import { Home, Settings, Bell, User, Calendar, CreditCard } from "lucide-react";
+import { Home, User, Calendar } from "lucide-react";
 import ReservationsList from "./components/Reserve List/ReservationsList";
 import { useNavigate } from "react-router-dom";
 
@@ -28,7 +28,7 @@ const UserPanel = () => {
   ];
 
   const handleOpenModal = (modalId: string) => setActiveModal(modalId);
-  const handleCloseModal = () => setActiveModal(null);
+
   const navigate = useNavigate();
 
   const renderModalContent = (modalId: string) => {

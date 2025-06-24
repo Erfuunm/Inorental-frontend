@@ -2,7 +2,6 @@ import { Route } from "react-router-dom";
 import { lazy } from "react";
 import withSuspense from "./AutoSuspense";
 import RentalManage from "../pages/MainRoutes/RentalsManage/RentalManage";
-import UserPanelLayout from "../layout/UserPanelLayout";
 import CoHostPanel from "../pages/MainRoutes/CoHostPanelPage/CoHostPanel";
 
 const HomePage = withSuspense(

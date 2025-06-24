@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
-import { BiWalk } from "react-icons/bi";
-import { FaGlobe, FaServicestack, FaUser, FaSignOutAlt } from "react-icons/fa";
-import { HiHome } from "react-icons/hi";
+
+import { FaGlobe, FaUser, FaSignOutAlt } from "react-icons/fa";
+
 import { useLocation, useNavigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import LoginModal from "../../../components/LoginModal/LoginModal";
@@ -14,7 +14,7 @@ interface HeaderSectionProps {
 }
 
 function HeaderSection({ isScrolled }: HeaderSectionProps) {
-  const [selectedTab, setSelectedTab] = useState("Homes");
+
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isSignupModalOpen, setIsSignupModalOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);

@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import  { useState } from "react";
 import Sidebar from "../../../components/CoHostPanel/Sidebar"; // Reuse or create a CoHost-specific Sidebar
-import { Home, Settings, Bell, User, Calendar, CreditCard } from "lucide-react";
+import { Home, User, Calendar } from "lucide-react";
 import PropertyList from "./components/PropertyList";
 import { useNavigate } from "react-router-dom";
 import RentalManage from "../RentalsManage/RentalManage";

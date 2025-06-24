@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaHome, FaMapMarkerAlt, FaBed, FaBath, FaUsers, FaDollarSign, FaInfoCircle, FaCamera } from 'react-icons/fa';
+import { FaHome, FaMapMarkerAlt, FaBed, FaDollarSign, FaInfoCircle, FaCamera } from 'react-icons/fa';
 import { useApi } from '../../../contexts/ApiProvider';
 import toast from 'react-hot-toast';
 
