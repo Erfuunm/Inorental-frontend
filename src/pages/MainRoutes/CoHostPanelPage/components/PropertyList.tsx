@@ -43,8 +43,8 @@ function PropertyList() {
         setState((prev) => ({ ...prev, loading: true, error: null }));
         const response = await api.get("/api/host-properties/");
 
-        if (response?.ok && Array.isArray(response.body)) {
-          setState({ propertyList: response.body, loading: false, error: null });
+        if (response?.ok && Array.isArray(response.body.results)) {
+          setState({ propertyList: response.body.results, loading: false, error: null });
         } else {
           throw new Error("Invalid API response format");
         }

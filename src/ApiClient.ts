@@ -1,5 +1,5 @@
 const BASE_API_URL: string =
-  "http://4.204.24.205:8000";
+  "https://inorental.canadacentral.cloudapp.azure.com";
 
 interface RequestOptions {
   method: string;

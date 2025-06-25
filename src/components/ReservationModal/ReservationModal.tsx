@@ -2,6 +2,8 @@ import { useState } from "react";
 import { FaCheckCircle, FaTimes } from "react-icons/fa";
 import type { House } from "../../types/property";
 import NotificationModal from "../Modal/NotificationModal";
+import { useApi } from "../../contexts/ApiProvider";
+
 
 interface ReservationModalProps {
   isOpen: boolean;
@@ -11,42 +13,67 @@ interface ReservationModalProps {
 }
 
 function ReservationModal({ isOpen, onClose, house, pricePerNight }: ReservationModalProps) {
+  const api = useApi();
   const [formData, setFormData] = useState({
-    fullName: "",
-    email: "",
-    phone: "",
     checkIn: "",
     checkOut: "",
     guests: 1,
   });
-
   const [showNotification, setShowNotification] = useState(false);
   const [platformSelected, setPlatformSelected] = useState<"whatsapp" | "sms" | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const calculateTotalPrice = () => {
+    if (!formData.checkIn || !formData.checkOut) return 0;
+    const checkInDate = new Date(formData.checkIn);
+    const checkOutDate = new Date(formData.checkOut);
+    const nights = Math.ceil((checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 3600 * 24));
+    const serviceFee = pricePerNight * nights * 0.12;
+    return (pricePerNight * nights + serviceFee).toFixed(2);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setShowNotification(true);
+    setError(null);
+
+    const body = {
+      property_id: house.property_id,
+      check_in_date: formData.checkIn,
+      check_out_date: formData.checkOut,
+      total_price: parseFloat(calculateTotalPrice()),
+      num_guests: formData.guests,
+    };
+
+    try {
+      debugger
+      console.log(house)
+      const res = await api.post('/api/bookings/create_booking/', body);
+      if (res.status === 201) {
+        setShowNotification(true);
+      } else {
+        setError("Failed to create booking. Please try again.");
+      }
+    } catch (err) {
+      setError("An error occurred while creating the booking.");
+    }
   };
 
   const handleNotificationClose = () => {
-  setShowNotification(false);
-  setPlatformSelected(null);
-  setFormData({
-    fullName: "",
-    email: "",
-    phone: "",
-    checkIn: "",
-    checkOut: "",
-    guests: 1,
-  });
-  onClose();
-};
-
+    setShowNotification(false);
+    setPlatformSelected(null);
+    setFormData({
+      checkIn: "",
+      checkOut: "",
+      guests: 1,
+    });
+    setError(null);
+    onClose();
+  };
 
   const handleSelectPlatform = (platform: "whatsapp" | "sms") => {
     setPlatformSelected(platform);
@@ -71,43 +98,11 @@ function ReservationModal({ isOpen, onClose, house, pricePerNight }: Reservation
           <h2 className="text-2xl font-bold mb-4 text-orange-600">Complete Your Reservation</h2>
           <p className="text-sm text-gray-600 mb-4">{house.title}</p>
 
+          {error && (
+            <div className="text-red-500 text-sm mb-4">{error}</div>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Full Name</label>
-              <input
-                type="text"
-                name="fullName"
-                value={formData.fullName}
-                onChange={handleInputChange}
-                className="mt-1 w-full p-2 border rounded-lg focus:border-orange-500 focus:ring-orange-500"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Email</label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleInputChange}
-                className="mt-1 w-full p-2 border rounded-lg focus:border-orange-500 focus:ring-orange-500"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Phone</label>
-              <input
-                type="tel"
-                name="phone"
-                value={formData.phone}
-                onChange={handleInputChange}
-                className="mt-1 w-full p-2 border rounded-lg focus:border-orange-500 focus:ring-orange-500"
-                required
-              />
-            </div>
-
             <div>
               <label className="block text-sm font-medium text-gray-700">Check-in Date</label>
               <input
@@ -151,18 +146,16 @@ function ReservationModal({ isOpen, onClose, house, pricePerNight }: Reservation
 
             <div className="border-t pt-4">
               <div className="flex justify-between text-sm">
-                <span className="text-gray-600">${pricePerNight} x 5 nights</span>
-                <span className="text-orange-600">${(pricePerNight * 5).toFixed(2)}</span>
+                <span className="text-gray-600">${pricePerNight} x {formData.checkIn && formData.checkOut ? Math.ceil((new Date(formData.checkOut).getTime() - new Date(formData.checkIn).getTime()) / (1000 * 3600 * 24)) : 0} nights</span>
+                <span className="text-orange-600">${formData.checkIn && formData.checkOut ? (pricePerNight * Math.ceil((new Date(formData.checkOut).getTime() - new Date(formData.checkIn).getTime()) / (1000 * 3600 * 24))).toFixed(2) : "0.00"}</span>
               </div>
               <div className="flex justify-between text-sm mt-2">
                 <span className="text-gray-600">Service fee</span>
-                <span className="text-orange-600">${(pricePerNight * 0.12).toFixed(2)}</span>
+                <span className="text-orange-600">${formData.checkIn && formData.checkOut ? (pricePerNight * Math.ceil((new Date(formData.checkOut).getTime() - new Date(formData.checkIn).getTime()) / (1000 * 3600 * 24)) * 0.12).toFixed(2) : "0.00"}</span>
               </div>
               <div className="flex justify-between font-semibold mt-2">
                 <span>Total before taxes</span>
-                <span className="text-orange-600">
-                  ${(pricePerNight * 5 + pricePerNight * 0.12).toFixed(2)}
-                </span>
+                <span className="text-orange-600">${calculateTotalPrice()}</span>
               </div>
             </div>
 
@@ -199,4 +192,4 @@ function ReservationModal({ isOpen, onClose, house, pricePerNight }: Reservation
   );
 }
 
-export default ReservationModal
+export default ReservationModal;
