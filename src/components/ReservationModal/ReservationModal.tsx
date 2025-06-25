@@ -28,40 +28,45 @@ function ReservationModal({ isOpen, onClose, house, pricePerNight }: Reservation
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const calculateTotalPrice = () => {
-    if (!formData.checkIn || !formData.checkOut) return 0;
-    const checkInDate = new Date(formData.checkIn);
-    const checkOutDate = new Date(formData.checkOut);
-    const nights = Math.ceil((checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 3600 * 24));
-    const serviceFee = pricePerNight * nights * 0.12;
-    return (pricePerNight * nights + serviceFee).toFixed(2);
+const calculateTotalPrice = () => {
+  if (!formData.checkIn || !formData.checkOut) return 0;
+  const checkInDate = new Date(formData.checkIn);
+  const checkOutDate = new Date(formData.checkOut);
+  const nights = Math.ceil((checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 3600 * 24));
+  const serviceFee = pricePerNight * nights * 0.12;
+  return pricePerNight * nights + serviceFee; // Remove .toFixed(2) to return a number
+};
+
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setError(null);
+
+  const totalPrice = calculateTotalPrice();
+  if (totalPrice === 0) {
+    setError("Please select valid check-in and check-out dates.");
+    return;
+  }
+
+  const body = {
+    property_id: house.property_id,
+    check_in_date: formData.checkIn,
+    check_out_date: formData.checkOut,
+    total_price: totalPrice,
+    num_guests: formData.guests,
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-
-    const body = {
-      property_id: house.property_id,
-      check_in_date: formData.checkIn,
-      check_out_date: formData.checkOut,
-      total_price: parseFloat(calculateTotalPrice()),
-      num_guests: formData.guests,
-    };
-
-    try {
-      debugger
-      console.log(house)
-      const res = await api.post('/api/bookings/create_booking/', body);
-      if (res.status === 201) {
-        setShowNotification(true);
-      } else {
-        setError("Failed to create booking. Please try again.");
-      }
-    } catch (err) {
-      setError("An error occurred while creating the booking.");
+  try {
+    console.log(house);
+    const res = await api.post('/api/bookings/create_booking/', body);
+    if (res.status === 201) {
+      setShowNotification(true);
+    } else {
+      setError("Failed to create booking. Please try again.");
     }
-  };
+  } catch (err) {
+    setError("An error occurred while creating the booking.");
+  }
+};
 
   const handleNotificationClose = () => {
     setShowNotification(false);
